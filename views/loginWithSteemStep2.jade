@@ -1,0 +1,11 @@
+extends layout
+
+block content
+  h1 Second Step, Sumbit your signature of the following Message with your posting key:
+  div.primary #{challenge}
+  div in this step, just sign the message above with your posting key of the steem account your provide(#{account}), and submit the signature.
+  form(method='post', action='/verifySteemAccount')
+    input.form-control(name='sign', type='text')
+    input(type='hidden', name='account' value='#{account}')
+    input(type='hidden', name='challenge' value='#{challenge}')
+    button.btn.btn-primary submit

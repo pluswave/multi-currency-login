@@ -1,0 +1,8 @@
+extends layout
+
+block content
+  h1 First Step, fill your steem Acount
+  div Your login process will be in two steps, the first step is submit your account to server for existense check.  
+  form(method='post', action='/provideSteemAccount')
+    input.form-control(name='account', type='text')
+    input.btn.btn-primary(type='submit')
