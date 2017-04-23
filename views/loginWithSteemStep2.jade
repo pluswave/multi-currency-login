@@ -2,8 +2,14 @@ extends layout
 
 block content
   h1 Second Step, Sumbit your signature of the following Message with your posting key:
-  div.primary #{challenge}
-  div in this step, just sign the message above with your posting key of the steem account your provide(#{account}), and submit the signature.
+  h4.text-info.lead #{challenge}
+  h3.
+     in this step, just sign the message above with your posting key of the steem account 
+     your provide(#{account}), and submit the signature. How to get your posting key ?
+     login to #[a(href="https://steemit.com") steemit] and check "wallet" - "permissions",
+     then for Posting Key, click "SHOW PRIVATE KEY" button .
+     How to sign? you may check 
+     #[a(href='https://pluswave.github.io/WifSign/') here ] .
   form(method='post', action='/verifySteemAccount')
     input.form-control(name='sign', type='text')
     input(type='hidden', name='account' value='#{account}')

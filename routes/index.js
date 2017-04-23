@@ -65,7 +65,7 @@ router.post('/verifySteemAccount', function(req, res, next) {
 
   var pubKey = bitsharesjs.PublicKey.fromStringOrThrow(keyCache[challenge].pubkey);
   if( sign.verifyBuffer(new Buffer(challenge, 'utf-8'), pubKey)  ){
-    res.send('Yeah! you are proved to be ' + account);
+    res.send('Yeah! you are proved to be ' + account + '@steem');
   }
   else{
     res.send('Sorry, you provide wrong signature, please check again');
