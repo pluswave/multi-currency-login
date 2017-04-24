@@ -1,0 +1,17 @@
+extends layout
+
+block content
+  h1 Second Step, Sumbit your signature of the following Message with your active key:
+  h4.text-info.lead #{challenge}
+  h3.
+     in this step, just sign the message above with your active key of the bts account 
+     your provide(#{account}), and submit the signature. How to get your active key ?
+     check any bts ui and check "account" - "permissions",
+     then under active key permissions tag, click the public key and then show WIF.
+     How to sign? you may check 
+     #[a(href='https://pluswave.github.io/WifSign/') here ] .
+  form(method='post', action='/BtsAuth/verifyAccount')
+    input.form-control(name='sign', type='text')
+    input(type='hidden', name='account' value='#{account}')
+    input(type='hidden', name='challenge' value='#{challenge}')
+    button.btn.btn-primary submit

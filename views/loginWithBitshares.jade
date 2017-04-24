@@ -1,0 +1,8 @@
+extends layout
+
+block content
+  h1 First Step, fill your bitshares Acount
+  h3 Your login process will be in two steps, the first step is submit your account to server for existense check.  
+  form(method='post', action='/BtsAuth/provideAccount')
+    input.form-control(name='account', type='text')
+    input.btn.btn-primary(type='submit')

@@ -1,12 +1,16 @@
 var express = require('express');
 var router = express.Router();
 var randomstring = require('randomstring');
-var steem = require('steem');
 var bitsharesjs = require('bitsharesjs');
 var bitsharesjsws = require('bitsharesjs-ws');
 
+
+bitsharesjsws.Apis.instance("wss://bit.btsabc.org/ws", true).init_promise.then((res) => {
+    console.log("connected to:", res[0].network);
+});
+
 router.get('/login', function (req, res, next) {
-  res.render('loginWithSteem')
+  res.render('loginWithBitshares')
 })
 
 var keyCache = {};
@@ -14,20 +18,17 @@ var keyCache = {};
 router.post('/provideAccount', function (req, res, next) {
   var account = req.body.account;
 
-  steem.api.getAccounts([account], function (err, result) {
-    if (err) {
-      // var err = new Error(err);
-      return next(err);
-    }
-    if (result.length == 0) {
-      var err2 = new Error('The Account you submit(' + account + ') is not found!');
-      err2.status = 400;
-      return next(err2);
+  bitsharesjsws.Apis.instance("wss://bit.btsabc.org/ws").db_api().exec("get_account_by_name", [account]).then( function (result) {
+
+    if( !result){
+      err = new Error('Sorry, your account is not exist');
+      err.status = 400;
+      return next(err);      
     }
 
-    role_posting = result[0].posting;
-    console.log(role_posting);
-    if( role_posting.key_auths.length > 1){
+    role_active = result.active;
+    console.log(role_active);
+    if( role_active.key_auths.length > 1){
       err2 = new Error('Sorry, your account is a multisig account, not supported!');
       err2.status = 400;
       return next(err2);
@@ -35,13 +36,16 @@ router.post('/provideAccount', function (req, res, next) {
     var now = new Date();
     var rand = randomstring.generate(8) + now.getTime();
     keyCache[rand] = {
-      pubkey: role_posting.key_auths[0][0],
+      pubkey: role_active.key_auths[0][0],
       account: account
     }
-    res.render('loginWithSteemStep2', { challenge: rand, account: req.body.account })
+    res.render('loginWithBitsharesStep2', { challenge: rand, account: req.body.account })
 
   })
-
+  .catch(function(err){
+    err.status = 400;
+    next(err);
+  })
 })
 
 
@@ -57,10 +61,10 @@ router.post('/verifyAccount', function(req, res, next) {
     return next(err);
   }
 
-  bitsharesjsws.ChainConfig.setPrefix('STM');
+  bitsharesjsws.ChainConfig.setPrefix('BTS');
   var pubKey = bitsharesjs.PublicKey.fromStringOrThrow(keyCache[challenge].pubkey);
   if( sign.verifyBuffer(new Buffer(challenge, 'utf-8'), pubKey)  ){
-    res.send('Yeah! you are proved to be ' + account + '@steem');
+    res.send('Yeah! you are proved to be ' + account + '@bitshares');
   }
   else{
     res.send('Sorry, you provide wrong signature, please check again');
