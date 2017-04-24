@@ -10,7 +10,7 @@ block content
      then for Posting Key, click "SHOW PRIVATE KEY" button .
      How to sign? you may check 
      #[a(href='https://pluswave.github.io/WifSign/') here ] .
-  form(method='post', action='/verifySteemAccount')
+  form(method='post', action='/SteemAuth/verifyAccount')
     input.form-control(name='sign', type='text')
     input(type='hidden', name='account' value='#{account}')
     input(type='hidden', name='challenge' value='#{challenge}')
