@@ -4,10 +4,23 @@ var randomstring = require('randomstring');
 var bitsharesjs = require('bitsharesjs');
 var bitsharesjsws = require('bitsharesjs-ws');
 
+var conStatus = 'closed' ;
+bitsharesjsws.Apis.setRpcConnectionStatusCallback(function(status){
+  console.log('status:', status);
+  conStatus = status;
+})
 
-bitsharesjsws.Apis.instance("wss://bit.btsabc.org/ws", true).init_promise.then((res) => {
-    console.log("connected to:", res[0].network);
-});
+function rawConnectChain(){
+
+  return bitsharesjsws.Apis.instance("wss://bit.btsabc.org/ws", true).init_promise;
+}
+
+function connectChain(){
+  if( conStatus == 'open'){
+      return Promise.resolve(true);
+  }
+  return rawConnectChain();
+}
 
 router.get('/login', function (req, res, next) {
   res.render('loginWithBitshares')
@@ -18,29 +31,31 @@ var keyCache = {};
 router.post('/provideAccount', function (req, res, next) {
   var account = req.body.account;
 
-  bitsharesjsws.Apis.instance("wss://bit.btsabc.org/ws").db_api().exec("get_account_by_name", [account]).then( function (result) {
+  connectChain().then( function(){
+    bitsharesjsws.Apis.instance().db_api().exec("get_account_by_name", [account]).then( function (result) {
 
-    if( !result){
-      err = new Error('Sorry, your account is not exist');
-      err.status = 400;
-      return next(err);      
-    }
+      if( !result){
+        err = new Error('Sorry, your account is not exist');
+        err.status = 400;
+        return next(err);      
+      }
 
-    role_active = result.active;
-    console.log(role_active);
-    if( role_active.key_auths.length > 1){
-      err2 = new Error('Sorry, your account is a multisig account, not supported!');
-      err2.status = 400;
-      return next(err2);
-    }
-    var now = new Date();
-    var rand = randomstring.generate(8) + now.getTime();
-    keyCache[rand] = {
-      pubkey: role_active.key_auths[0][0],
-      account: account
-    }
-    res.render('loginWithBitsharesStep2', { challenge: rand, account: req.body.account })
+      role_active = result.active;
+      console.log(role_active);
+      if( role_active.key_auths.length > 1){
+        err2 = new Error('Sorry, your account is a multisig account, not supported!');
+        err2.status = 400;
+        return next(err2);
+      }
+      var now = new Date();
+      var rand = randomstring.generate(8) + now.getTime();
+      keyCache[rand] = {
+        pubkey: role_active.key_auths[0][0],
+        account: account
+      }
+      res.render('loginWithBitsharesStep2', { challenge: rand, account: req.body.account })
 
+    })
   })
   .catch(function(err){
     err.status = 400;
