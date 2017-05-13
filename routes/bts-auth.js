@@ -76,8 +76,7 @@ router.post('/verifyAccount', function(req, res, next) {
     return next(err);
   }
 
-  bitsharesjsws.ChainConfig.setPrefix('BTS');
-  var pubKey = bitsharesjs.PublicKey.fromStringOrThrow(keyCache[challenge].pubkey);
+  var pubKey = bitsharesjs.PublicKey.fromStringOrThrow(keyCache[challenge].pubkey, 'BTS');
   if( sign.verifyBuffer(new Buffer(challenge, 'utf-8'), pubKey)  ){
     res.send('Yeah! you are proved to be ' + account + '@bitshares');
   }

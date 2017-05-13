@@ -3,7 +3,7 @@ var router = express.Router();
 var randomstring = require('randomstring');
 var steem = require('steem');
 var bitsharesjs = require('bitsharesjs');
-var bitsharesjsws = require('bitsharesjs-ws');
+
 
 router.get('/login', function (req, res, next) {
   res.render('loginWithSteem')
@@ -57,8 +57,7 @@ router.post('/verifyAccount', function(req, res, next) {
     return next(err);
   }
 
-  bitsharesjsws.ChainConfig.setPrefix('STM');
-  var pubKey = bitsharesjs.PublicKey.fromStringOrThrow(keyCache[challenge].pubkey);
+  var pubKey = bitsharesjs.PublicKey.fromStringOrThrow(keyCache[challenge].pubkey, 'STM');
   if( sign.verifyBuffer(new Buffer(challenge, 'utf-8'), pubKey)  ){
     res.send('Yeah! you are proved to be ' + account + '@steem');
   }
